@@ -20,6 +20,35 @@ In concrete terms, for our case, we will create two .qcows2 files :
 	qemu-img create -f qcow2 lfs.qcow2 30G
 ```
 
+Once we have those files, we can then start our machine using the Qemu CLI : 
+
+```bash
+	qemu-system-x86_64 \
+	-enable-kvm \ # uses the Linux Kernel hypervisor module, allowing the guest to run on real hardware
+	-m 8G \ # 8GB of RAM
+	-cpu host \ # allows us to use the computer's CPU directly instead of emulating one
+	-smp 20 \ # allocates 20 cores to the guest
+	-drive file=$LFS_PATH/debian-host.qcow2,if=virtio \ # mounts the host disk to the guest
+	-drive file=$LFS_PATH/lfs.qcow2,if=virtio \ # mounts the lfs disk to the guest
+	-boot d \ # boots the guest from the cd-rom - this allows us to install an .iso on the host disk
+	-vga virtio \ 
+	-netdev user,id=net0,hostfwd=tcp::2222-:22 \
+	-device virtio-net-pci,netdev=net0 \
+	-display none
+```
+
+## Cross compilation theory
+
+I really striggled to understand [this section](https://www.linuxfromscratch.org/lfs/view/stable/partintro/toolchaintechnotes.html) of the LFS manual, so here's my understanding. 
+
+Overall, cross compilation is used to generate code for a machine `target` on a machine `host`. Those two machines can be completely different, and using `host`'s native compiler toolchain would produce binaries that can run on it's system and architecture but not on the target's. 
+
+While native compilation is always simpler, sometimes a target system is too slow, or doesn't have enough memory (for instance, embedded systems), and so we must compile that system's binaries on another, more powerful machine. 
+
+
+### The Canadian Cross
+
 ## Things to look up 
 
 **COW overlays** -> allows to have a read-only base disk, writing changes to another file and preserving VM state in case something goes wrong.
+
