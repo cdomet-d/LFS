@@ -12,9 +12,7 @@ Here's a compendium of the things I found interresting while doing this project.
 
 - **Ncurses**: [tic](https://linux.die.net/man/1/tic) - the [terminfo](https://en.wikipedia.org/wiki/Terminfo) entry-description compiler
 
-### Notes on the LFS chapters
-
-## Cross compilation theory
+## Notes on the LFS chapters
 
 ### III.ii [Cross Compilation](https://www.linuxfromscratch.org/lfs/view/stable/partintro/toolchaintechnotes.html)
 
