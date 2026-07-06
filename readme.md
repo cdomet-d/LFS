@@ -40,15 +40,79 @@ While native compilation is always simpler, sometimes a target system is too slo
 
 ### 8.2.[ Package Management](https://www.linuxfromscratch.org/lfs/view/stable/chapter08/pkgmgt.html)
 
-In this part we must choose a package management technique ; I've opted for Install-log, of which [I found a modern fork](https://github.com/Bjonk23/install-log) (thanks to @Bjonk23).
+In this part we must choose a package management technique ; I've opted for the timestamp tracking, which I've implemented like follows :
 
-I've taken the liberty of packing the repository in a tarball since I currently don't have git on my LFS host and don't plan to install it. You can easily download it thusly:
+First, in the host, I created this script - which I named `install-log.sh` - in a directory **that's accessible in the chroot environnement**. For me, that meant `$LFS/var/log/pckmgmt`.
 
 ```sh
-wget https://github.com/cdomet-d/LFS/raw/refs/heads/master/install-log.tar
+#!/bin/bash
+# Usage: ./log_installed.sh [timestamp_file] [output_log]
+
+TIMESTAMP_FILE="$1"
+OUTPUT_LOG="$2"
+
+if [ ! -f "$TIMESTAMP_FILE" ]; then
+    echo "Error: Timestamp file '$TIMESTAMP_FILE' not found."
+    echo "Create it first with: date +%s > <timestamp-file>"
+    exit 1
+fi
+
+TIMESTAMP=$(cat "$TIMESTAMP_FILE")
+echo "Logging files newer than: $(date -d "@$TIMESTAMP" '+%Y-%m-%d %H:%M:%S')"
+
+find / -type f -newermt "@$TIMESTAMP" \
+    -not -path "/proc/*" \
+    -not -path "/sys/*" \
+    -not -path "/dev/*" \
+    -not -path "/run/*" \
+    -not -path "/tmp/*" \
+    -not -path "/var/tmp/*" >> "$OUTPUT_LOG" 2>/dev/null
+
+echo "Logged $(wc -l < "$OUTPUT_LOG") files to $OUTPUT_LOG"
+echo "------" >> "$OUTPUT_LOG"
 ```
 
-You can then follow [the original ReadMe](https://github.com/Bjonk23/install-log).
+Then, in the same directory, I created a script to run the installation tracking  more smoothly. I've named it `log.sh` and will refer to it as such thereafter.
+
+```sh
+#!/bin/bash
+
+set -x
+
+if [ $# -eq 0 ]
+  then
+    echo "Usage: log <package-name>"
+	exit 1
+fi
+
+bash /path/to/logging-dir/install-log.sh \
+		/path/to/logging-dir/<timestamp-file> \
+		/path/to/logging-dir/"$1".log
+```
+
+Finally, in the chroot environnement, I :
+
+  - exported a `LOGGER` environnement variable, which holds the path to the logging script - it's also where I've elected to store the logs ;
+  - created a date alias to make the timestamp file management less of a pain;
+
+```sh
+export LOGGER=/path/to/logging-dir/
+alias date='date +%s > $LOGGER/<timestamp-file>'
+```
+
+I guess those could  be added to `chroot` command used to enter our building environnement, but I honestly didn't feel comfortable modifying it ; I'll take the pain of having to type two commands.
+
+Then your package management process can look like that: 
+
+```sh 
+# do whatever you must do to your package : tar, ./configure, make...
+# then, just before make install: 
+date
+make install
+bash /log.sh <package-name>
+```
+
+And hopefully your package management will be nice and smooth !
 
 ## Useful links
 
