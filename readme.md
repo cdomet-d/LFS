@@ -30,7 +30,7 @@ While native compilation is always simpler, sometimes a target system is too slo
   - [devtmpfs and the device tree](https://www.kernel.org/doc/html/latest/devicetree/usage-model.html)
   - 7.3.2 : [devpts](https://www.baeldung.com/linux/dev-pts) and also [a better explanation of terminal multiplexor](https://en.wikipedia.org/wiki/Terminal_multiplexer)
 
-### 8.2.[ Package Management](https://www.linuxfromscratch.org/lfs/view/stable/chapter08/pkgmgt.html)
+### 8.2.[Package Management](https://www.linuxfromscratch.org/lfs/view/stable/chapter08/pkgmgt.html)
 
 In this part we must choose a package management technique ; I've opted for the timestamp tracking, which I've implemented like follows :
 
@@ -94,9 +94,9 @@ alias date='date +%s > $LOGGER/<timestamp-file>'
 
 I guess those could  be added to `chroot` command used to enter our building environnement, but I honestly didn't feel comfortable modifying it ; I'll take the pain of having to type two commands.
 
-Then your package management process can look like that: 
+Then your package management process can look like that:
 
-```sh 
+```sh
 # do whatever you must do to your package : tar, ./configure, make...
 # then, just before make install: 
 date
