@@ -1,12 +1,6 @@
-# Compiling the kernel
+# LFS
 
-## Oh the places you'll go
-
-Reading the LSF Handbook, I've also made detours to :
-
-- [How to extract and compiles packages](https://tldp.org/HOWTO/Software-Building-HOWTO.html#toc2)
-  - Usefulness : undertermined
-- [Building packages](https://moi.vonos.net/linux/beginners-installing-from-source/)
+Here's a compendium of the things I found interresting while doing this project.
 
 ## Various notes and sources
 
