@@ -100,6 +100,7 @@ alias date='date +%s > $LOGGER/install_timestamp'
 function cwd { basename $(pwd) ;}
 function log { bash /log.sh $(cwd) ;}
 alias pcki='date && make install && log'
+function leave { export DONE=$(cwd) && cd .. && rm -rf $DONE ;}
 ```
 
 I guess those could  be added to `chroot` command used to enter our building environnement, but I honestly didn't feel comfortable modifying it ; I'll take the pain of having to type two commands.
