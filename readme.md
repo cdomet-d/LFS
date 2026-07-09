@@ -92,32 +92,53 @@ export LOGGER=/path/to/logging-dir/
 alias date='date +%s > $LOGGER/<timestamp-file>'
 ```
 
-So for my own usage: 
-
-```sh
-export LOGGER=/var/log/pckmgmt/
-alias date='date +%s > $LOGGER/install_timestamp'
-function cwd { basename $(pwd) ;}
-function log { bash /log.sh $(cwd) ;}
-alias pcki='date && make install && log'
-function leave { export DONE=$(cwd) && cd .. && rm -rf $DONE ;}
-```
-
 I guess those could  be added to `chroot` command used to enter our building environnement, but I honestly didn't feel comfortable modifying it ; I'll take the pain of having to type two commands.
 
-Then your package management process can look like that:
+## Utilities
+
+As I was starting to loose my mind from repetitive tasks, I remembered the Shell is a powerful things and made a few tools to automate annoying stuff: 
+
+### Check if all the packages where successfully installed
 
 ```sh
-# do whatever you must do to your package : tar, ./configure, make...
-# then, just before make install: 
-date
-make install
-bash /log.sh <package-name>
+function chkinstall { while IFS= read -r line; do   command -v "$line" || echo "Not Found: $line" ; done < installed ;}
 ```
 
-And hopefully your package management will be nice and smooth !
+This expects an `installed` file to be in the directory where you run this. To create it, I created this function:
+
+```sh
+function winstalled { printf '%s\n' "$1" | sed 's/, and /\n/; s/, /\n/g' > installed ; }
+```
+
+That you use by copy-pasting the "installed programs" paragraph in your current binary LFS page, IE for kbd : 
+
+```sh
+	winstalled  chvt, deallocvt, dumpkeys, fgconsole, getkeycodes, kbdinfo, kbd_mode, kbdrate, loadkeys, loadunimap, mapscrn, openvt, psfaddtable (link to psfxtable), psfgettable (link to psfxtable), psfstriptable (link to psfxtable), psfxtable, setfont, setkeycodes, setleds, setmetamode, setvtrgb, showconsolefont, showkey, unicode_start, and unicode_stop
+```
+
+Then your package management process can look like that:
 
 ## Useful links
 
 - [Ask questions the smart way](http://catb.org/~esr/faqs/smart-questions.html#before)
 - [Dynamic Linking](https://lwn.net/Articles/961117/)
+
+## My own commands
+
+### Aliases
+
+```sh
+export LOGGER=/var/log/pckmgmt/
+alias date='date +%s > $LOGGER/install_timestamp'
+alias pcki='date && make install && log'
+```
+
+### Functions
+
+```sh
+function cwd { basename $(pwd) ;}
+function log { bash /log.sh $(cwd) ;}
+function leave { export DONE=$(cwd) && cd .. && rm -rf $DONE ;}
+function winstalled { printf '%s\n' "$1" | sed 's/, and /\n/; s/, /\n/g' > installed ; }
+function chkinstall { while IFS= read -r line; do   command -v "$line" || echo "Not Found: $line" ; done < installed ;}
+```
