@@ -139,6 +139,6 @@ alias pcki='date && make install && log'
 function cwd { basename $(pwd) ;}
 function log { bash /log.sh $(cwd) ;}
 function leave { export DONE=$(cwd) && cd .. && rm -rf $DONE ;}
-function winstalled { printf '%s\n' "$1" | sed 's/, and /\n/; s/, /\n/g' > installed ; }
-function chkinstall { while IFS= read -r line; do   command -v "$line" || echo "Not Found: $line" ; done < installed ;}
+function winstall() { echo $1 | sed 's/, /\n/g; s/and //g;' > installed ; }
+function chkinstall() { while IFS= read -r line; do name=${line%% *}; echo -n "$name: "; command -v "$name" || ls -R /usr/lib | grep "$name" || echo "Not Found"; done < installed; }
 ```
